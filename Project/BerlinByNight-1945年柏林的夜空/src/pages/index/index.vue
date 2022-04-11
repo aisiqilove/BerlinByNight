@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import { reactive, toRefs, ref, onMounted, nextTick } from 'vue'
+import { Hero, Enemy } from './model'
 interface stateIt {
   width: number
   height: number
@@ -24,6 +25,16 @@ interface stateIt {
   gameLoad: HTMLImageElement[]
   heroImg: HTMLImageElement[]
   progress: number
+  phase: number
+}
+
+enum StateEnum {
+  DOWNLOAD,
+  READY,
+  LOADING,
+  PLAY,
+  PAUSE,
+  OVER,
 }
 
 export default {
@@ -43,15 +54,19 @@ export default {
       gameLoad: [],
       heroImg: [],
       progress: 0,
+      phase: 0,
     })
     // mounted
     onMounted(() => {
-      console.log('Component is mounted!', viewRef)
       state.ctx = uni.createCanvasContext('canvasWrapper')
       paintBg(state.ctx)
-      // paintLogo(state.ctx)
+      paintLogo(state.ctx)
+      let hero = new Hero(state.width, state.height)
+      hero.draw(state.ctx, changePhase)
     })
-
+    function changePhase(phase: number) {
+      state.phase = phase
+    }
     // 开始游戏
     function start() {
       console.log('开始游戏')
@@ -62,7 +77,7 @@ export default {
         url: imgPath,
         success: function (res) {
           ctx.drawImage(res.tempFilePath, x, y)
-          ctx.draw()
+          ctx.draw(true)
         },
       })
     }
