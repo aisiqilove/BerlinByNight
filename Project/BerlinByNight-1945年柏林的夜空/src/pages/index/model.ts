@@ -76,8 +76,8 @@ interface enemyIf extends planeIf {
   enemy: null | {}
   removable: boolean
   die: boolean
-  draw: (ctx: any, changeState: (arg0: StateEnum) => void) => void
-  hit: () => void
+  draw: (ctx: any, canvasHeight: number) => void
+  hit: (hullet: {mx:number, my:number, width: number, height:number, removable: boolean}[],gameScore:number ,changeScore:  (arg0: number) => void) => void
 }
  class Hero implements heroIf {
   x: number
@@ -111,7 +111,7 @@ interface enemyIf extends planeIf {
     }
     if (this.count % 3 == 0 && this.index <= 1) {
       // 切换hero的图片
-      this.index = this.index == 0 ? 1 : 0
+      this.index = this.index == 2 ? 1 : 2
       this.count = 0
     }
     let that = this
@@ -222,7 +222,7 @@ class Enemy implements enemyIf {
   enemy: null | string
   removable: boolean
   die: boolean
-  constructor(width: number) {
+  constructor(ctx: any, width: number) {
     this.n = Math.random() * 20
     this.enemy = null // 保存敌机图片的数组
     this.speed = 0 // 敌机的速度
@@ -241,10 +241,25 @@ class Enemy implements enemyIf {
       this.speed = 6
     }
     this.x = Math.random() * (width - 100)
-    // this.x = parseInt(Math.random() * (canvas.width - this.enemy.width))
-    // this.y = -this.enemy.height
-    // this.width = this.enemy.width
-    // this.height = this.enemy.height
+    // uni.downloadFile({
+    //   url: `/static/img/${this.enemy}.png`,
+    //   success: function (res) {
+    //     console.log('res ==', res)
+        // uni.getImageInfo({
+        //   src: `/static/img/${this.enemy}`,
+        //   success: function (image) {
+        //     console.log('image ===', image)
+        //   }
+        // })
+        // ctx.drawImage(res.tempFilePath, that.x, that.y)
+        // ctx.fillText('SCORE:' + 200, 10, 30)
+        // ctx.draw(true)
+      // },
+    // })
+    this.x = 0
+    this.y = 0
+    this.width = 0
+    this.height = 0
     this.index = 0
     this.removable = false
     // 标识敌机是否狗带，若狗带就画它的爆炸图(也就是遗像啦)
@@ -277,13 +292,27 @@ class Enemy implements enemyIf {
         this.removable = true
       }
     }
-    ctx.drawImage(this.enemy, this.x, this.y)
-    this.y += this.speed // 移动敌机
-    this.hit() //判断是否击中敌机
-    if (this.y > canvasHeight) {
-      // 若敌机飞出画布，就标识可移除
-      this.removable = true
-    }
+    let that = this
+    uni.getImageInfo({
+      src: `/static/img/${this.enemy}`,
+      success: function (image) {
+        console.log('image ===', image)
+        that.x = (Math.random() * (that.width - image.width))
+        that.y = -image.height
+        that.width = image.width
+        that.height = image.height
+        console.log('that.x, that.y ==', that.x, that.y)
+        ctx.drawImage(`/static/img/${that.enemy}`, that.x, that.y)
+        ctx.draw(true)
+        that.y += that.speed // 移动敌机
+        // this.hit() //判断是否击中敌机
+        if (that.y > canvasHeight) {
+          // 若敌机飞出画布，就标识可移除
+          that.removable = true
+        }
+      }
+    })
+   
   }
   hit(hullet: {mx:number, my:number, width: number, height:number, removable: boolean}[],gameScore:number ,changeScore:  (arg0: number) => void) {
     //判断是否击中敌机
@@ -311,5 +340,7 @@ class Enemy implements enemyIf {
 
 export{
   Hero,
-  Enemy
+  Enemy,
+  enemyIf,
+  heroIf
 }

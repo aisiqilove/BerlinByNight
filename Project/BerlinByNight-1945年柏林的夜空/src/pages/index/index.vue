@@ -4,13 +4,14 @@
       :style="{ width: width + 'px', height: height + 'px' }"
       canvas-id="canvasWrapper"
       id="canvasWrapper"
+      @touchstart="handleClick"
     ></canvas>
   </view>
 </template>
 
 <script lang="ts">
 import { reactive, toRefs, ref, onMounted, nextTick } from 'vue'
-import { Hero, Enemy } from './model'
+import { Hero, Enemy, enemyIf, heroIf } from './model'
 interface stateIt {
   width: number
   height: number
@@ -26,6 +27,8 @@ interface stateIt {
   heroImg: HTMLImageElement[]
   progress: number
   phase: number
+  liveEnemy: enemyIf[]
+  hero: heroIf | null
 }
 
 enum StateEnum {
@@ -54,32 +57,39 @@ export default {
       gameLoad: [],
       heroImg: [],
       progress: 0,
-      phase: 0,
+      phase: 1,
+      liveEnemy: [],
+      hero: null,
     })
     // mounted
     onMounted(() => {
       state.ctx = uni.createCanvasContext('canvasWrapper')
-      paintBg(state.ctx)
-      paintLogo(state.ctx)
-      let hero = new Hero(state.width, state.height)
-      hero.draw(state.ctx, changePhase)
+      start()
+      // paintBg(state.ctx)
+      // paintLogo(state.ctx)
+      // let hero = new Hero(state.width, state.height)
+      // hero.draw(state.ctx, changePhase)
+      // let enemy = new Enemy(state.ctx, state.width)
+      // enemy.draw(state.ctx, state.height)
+      setInterval(gameEngine, 50)
+      // requestAnimationFrame(gameEngine)
     })
     function changePhase(phase: number) {
       state.phase = phase
     }
     // 开始游戏
-    function start() {
-      console.log('开始游戏')
-    }
+    // function start() {
+    //   console.log('开始游戏')
+    // }
 
     function loadImg(ctx: any, imgPath: string, x: number = 0, y: number = 0) {
-      uni.downloadFile({
-        url: imgPath,
-        success: function (res) {
-          ctx.drawImage(res.tempFilePath, x, y)
-          ctx.draw(true)
-        },
-      })
+      // uni.downloadFile({
+      //   url: imgPath,
+      //   success: function (res) {
+      ctx.drawImage(imgPath, x, y)
+      ctx.draw(true)
+      //   },
+      // })
     }
     // 绘制游戏加载进度画面
     function imgLoad(state: stateIt) {
@@ -105,8 +115,62 @@ export default {
     function paintLogo(ctx: any) {
       loadImg(ctx, '/static/img/start.png')
     }
+    // 画敌机
+    function drawEnemy() {
+      for (var i = 0; i < state.liveEnemy.length; i++) {
+        if (state.liveEnemy[i].removable) {
+          state.liveEnemy.splice(i, 1)
+        }
+      }
+      for (var i = 0; i < state.liveEnemy.length; i++) {
+        state.liveEnemy[i].draw(state.ctx, state.width)
+      }
+    }
+    function handleClick() {
+      console.log('handleClick===')
+      // state.phase == StateEnum.READY && (state.phase = StateEnum.LOADING)
+      state.phase == StateEnum.READY && (state.phase = StateEnum.PLAY)
+    }
+    function start() {
+      state.phase = StateEnum.READY
+
+      state.ctx.fillStyle = '#963'
+      state.ctx.font = '24px arial'
+      state.hero = new Hero(state.width, state.height)
+      gameEngine()
+    }
+    // 游戏主引擎
+    function gameEngine() {
+      console.log('state.phase ===', state.phase)
+
+      switch (state.phase) {
+        case StateEnum.READY:
+          paintBg(state.ctx)
+          paintLogo(state.ctx)
+          break
+        case StateEnum.LOADING:
+          paintBg(state.ctx)
+          // load()
+          break
+        case StateEnum.PLAY:
+          paintBg(state.ctx)
+          // drawEnemy()
+          // Hullet.drawHullet()
+
+          state.hero.draw(state.ctx, changePhase)
+          break
+        case StateEnum.PAUSE:
+          // drawPause()
+          break
+        case StateEnum.OVER:
+          // gameover()
+          break
+      }
+      //requestAnimationFrame(gameEngine);
+    }
     return {
       ...toRefs(state),
+      handleClick,
       viewRef,
     }
   },
