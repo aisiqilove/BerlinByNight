@@ -44,9 +44,7 @@ const heroArr = [
 ]
 const hulletImg = 'm1.png'
 enum StateEnum {
-  DOWNLOAD,
   READY,
-  LOADING,
   PLAY,
   PAUSE,
   OVER,
@@ -266,13 +264,13 @@ class Enemy implements enemyIf {
       src: `/static/img/${this.enemy}`,
       success: function (image) {
         that.x = that.x ===0 ? (Math.random() * (canvasWidth - image.width)) : that.x 
-        that.y = that.y ===0 ?-image.height : that.y
+        that.y = that.y ===0 ? -image.height : that.y
         that.width = image.width
         that.height = image.height
         ctx.drawImage(`/static/img/${that.enemy}`, that.x, that.y)
         ctx.draw(true)
         that.y += that.speed // 移动敌机
-        that.hit(hullets,gameScore ,changeScore) //判断是否击中敌机
+        that.hit(hullets, gameScore ,changeScore) //判断是否击中敌机
         if (that.y > canvasHeight) {
           // 若敌机飞出画布，就标识可移除
           that.removable = true
@@ -354,5 +352,6 @@ export{
   enemyIf,
   heroIf,
   Hullet,
-  hulletIf
+  hulletIf,
+  StateEnum
 }

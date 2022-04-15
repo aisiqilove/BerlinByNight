@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { reactive, toRefs, onMounted, onUnmounted } from 'vue'
-import { Hero, Hullet, enemyIf, heroIf, hulletIf } from './model'
+import { Hero, Hullet, enemyIf, heroIf, hulletIf, StateEnum } from './model'
 interface stateIt {
   width: number
   height: number
@@ -24,13 +24,6 @@ interface stateIt {
   hullets: hulletIf[]
   score: number
   bgY: number
-}
-
-enum StateEnum {
-  READY,
-  PLAY,
-  PAUSE,
-  OVER,
 }
 
 export default {
