@@ -92,7 +92,12 @@ export default {
     }
     // 画分数
     function drawScore() {
-      state.ctx.fillText('SCORE:' + state.score, 10, 30)
+      state.ctx.fillText('分数:' + state.score, 10, 30)
+      // state.ctx.fillText(
+      //   '生命值:' + ((state.hero && state.hero?.life) || 0),
+      //   state.width - 120,
+      //   30
+      // )
       state.ctx.draw(true)
     }
     // 触摸屏幕操作

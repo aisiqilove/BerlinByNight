@@ -109,7 +109,7 @@ interface hulletIf {
     this.hCount = 0 // 用于控制子弹发射的频率
     this.eCount = 0 // 用于控制敌机出现的频率
     this.n = 0
-    this.life = 0
+    this.life = 3
     this.width = 0
     this.height = 0
     uni.getImageInfo({
@@ -178,13 +178,12 @@ interface hulletIf {
         py >= d.y &&
         py <= d.y + d.height
       ) {
-        this.life++
-        if (this.life > 30) {
+        this.life--
+        if (this.life < 2) {
           if (this.index <= 2) {
             this.index = 3
           }
           this.index++
-          this.life = 0
         }
       }
     }
@@ -213,7 +212,7 @@ class Enemy implements enemyIf {
       // 不同大小的敌机随机出现
       this.enemy = enemy3Arr[0]
       this.speed = 2
-      this.life = 50
+      this.life = 3
     } else if (this.n < 6) {
       this.enemy = enemy2Arr[0]
       this.speed = 4
